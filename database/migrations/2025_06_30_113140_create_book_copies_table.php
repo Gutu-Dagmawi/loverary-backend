@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('condition')->nullable();
             $table->string('location')->nullable();
             $table->boolean('is_available')->default(true);
+            $table->timestamps();
 
             $table->foreign('book_id')->references('book_id')->on('books')->onUpdate('cascade')->onDelete('cascade');
         });

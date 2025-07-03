@@ -10,7 +10,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rules\Enum;
 use Laravel\Sanctum\PersonalAccessToken;
 use Throwable;
 
@@ -43,7 +42,10 @@ class AuthController extends Controller
                 ], 401);
             }
 
-            $user = User::create([
+            $type = 'App\Models\\' . $request->type;
+
+
+            $user = $type::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'type' => $request->type,
