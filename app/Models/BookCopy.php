@@ -25,4 +25,9 @@ class BookCopy extends Model
     {
         return $this->belongsTo(Book::class, 'book_id', 'book_id');
     }
+
+    public function check_out(): BelongsTo
+    {
+        return $this->belongsTo(CheckOut::class);
+    }
 }

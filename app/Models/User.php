@@ -65,4 +65,23 @@ class User extends Authenticatable
     {
         return $this->type === "Admin";
     }
+
+    public function newFromBuilder($attributes = [], $connection = null): User
+    {
+        $attributes = (array) $attributes;
+        $class = static::class;
+
+        if (! empty($attributes['type'])) {
+            $subclass = __NAMESPACE__ . '\\' . $attributes['type'];
+            if (class_exists($subclass) && is_subclass_of($subclass, self::class)) {
+                $class = $subclass;
+            }
+        }
+
+        $model = (new $class)->setRawAttributes($attributes, true);
+        $model->setConnection($connection ?: $this->getConnectionName());
+
+        return $model;
+    }
+
 }
