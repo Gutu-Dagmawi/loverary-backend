@@ -29,6 +29,29 @@ class AuthorController extends Controller
         ], 200);
     }
 
+    public function showMultipleAuthors(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'integer|exists:authors,author_id'
+        ]);
+
+        try {
+            $authors = Author::whereIn('author_id', $validated['ids'])->get();
+
+            return response()->json([
+                'status' => true,
+                'data' => $authors
+            ], 200);
+
+        } catch (Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Server error: ' . $th->getMessage()
+            ], 500);
+        }
+    }
+
     public function store(Request $request): JsonResponse
     {
         $this->abortUnlessAdmin();

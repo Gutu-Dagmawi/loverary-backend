@@ -22,10 +22,11 @@ class CirculationController extends Controller
     public function getAllLoans(): JsonResponse
     {
         $member = auth()->user();
-        if (!$member instanceof Admin) {
+        if (!($member->isAdmin())) {
             return response()->json([
                 'status' => false,
                 'message' => 'Only admins can view all checkouts.',
+                'current_user' => $member,
             ], 403);
         }
 
@@ -40,10 +41,11 @@ class CirculationController extends Controller
     public function getAllOverdue(): JsonResponse
     {
         $member = auth()->user();
-        if (!$member instanceof Admin) {
+        if (!$member->isAdmin()) {
             return response()->json([
                 'status' => false,
                 'message' => 'Only admins can view all overdue books.',
+                'current_user' => $member,
             ], 403);
         }
 
@@ -68,10 +70,11 @@ class CirculationController extends Controller
     public function getAllReturns(): JsonResponse
     {
         $member = auth()->user();
-        if (!$member instanceof Admin) {
+        if (!$member->isAdmin()) {
             return response()->json([
                 'status' => false,
                 'message' => 'Only admins can view all returns.',
+                'current_user' => $member,
             ], 403);
         }
 
