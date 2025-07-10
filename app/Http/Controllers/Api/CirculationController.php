@@ -19,6 +19,77 @@ use function Pest\Laravel\get;
 
 class CirculationController extends Controller
 {
+    public function getAllLoans(): JsonResponse
+    {
+        $member = auth()->user();
+        if (!$member instanceof Admin) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Only admins can view all checkouts.',
+            ], 403);
+        }
+
+        $checkOuts = CheckOut::all();
+
+        return response()->json([
+            'status' => true,
+            'check_outs' => $checkOuts
+        ]);
+    }
+
+    public function getAllOverdue(): JsonResponse
+    {
+        $member = auth()->user();
+        if (!$member instanceof Admin) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Only admins can view all overdue books.',
+            ], 403);
+        }
+
+        $overdueCheckOuts = CheckOut::where('due_date', '<', Date::now())
+            ->whereNull('check_in_id')
+            ->get();
+
+        if ($overdueCheckOuts->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No overdue checkouts found.',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'overdue_check_outs' => $overdueCheckOuts
+        ]);
+    }
+
+
+    public function getAllReturns(): JsonResponse
+    {
+        $member = auth()->user();
+        if (!$member instanceof Admin) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Only admins can view all returns.',
+            ], 403);
+        }
+
+        $returns = CheckIn::all();
+
+        if ($returns->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No returns found.',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'returns' => $returns
+        ]);
+    }
+
     public function checkOutBook(Book $book): JsonResponse
     {
         $member = auth()->user();

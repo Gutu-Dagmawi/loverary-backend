@@ -13,6 +13,50 @@ use Psr\Container\NotFoundExceptionInterface;
 class UserController extends Controller
 {
     /**
+     * Get all members of the library.
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function getAllMembers(): JsonResponse
+    {
+        if (!Auth::user() || !Auth::user()->isAdmin()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Only admins can view all members.',
+            ], 403);
+        }
+
+        $members = Member::all();
+        if($members->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No members found.',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'members' => $members
+        ]);
+    }
+
+    public function getMember($id): JsonResponse
+    {
+        $member = Member::find($id);
+
+        if (!$member) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Member not found.',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'member' => $member
+        ]);
+    }
+    /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
