@@ -31,6 +31,7 @@ class AuthorController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        $this->abortUnlessAdmin();
         try {
             $validateAuthor = Validator::make(
                 $request->all(),
@@ -68,6 +69,7 @@ class AuthorController extends Controller
 
     public function update(Request $request, Author $author): JsonResponse
     {
+        $this->abortUnlessAdmin();
         try {
             $validateAuthor = Validator::make(
                 $request->all(),
@@ -102,6 +104,7 @@ class AuthorController extends Controller
 
     public function destroy(Author $author): JsonResponse
     {
+        $this->abortUnlessAdmin();
         try {
             $author->delete();
 
