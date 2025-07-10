@@ -39,6 +39,7 @@ class StoreBookRequest extends FormRequest
             'book_copies.*.condition' => 'nullable|string|max:255',
             'book_copies.*.location' => 'nullable|string|max:255',
             'book_copies.*.is_available' => 'nullable|boolean',
+            'cover_image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ];
     }
 }
