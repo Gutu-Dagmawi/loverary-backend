@@ -37,7 +37,8 @@ class UserController extends Controller
 
         return response()->json([
             'status' => true,
-            'members' => $members
+            'members' => $members,
+            'total' => $members->count()
         ]);
     }
 

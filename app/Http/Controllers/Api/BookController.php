@@ -36,7 +36,8 @@ class BookController extends Controller
                 'per_page' => $paginated->perPage(),
                 'total' => $paginated->total(),
                 'has_more' => $paginated->hasMorePages(),
-            ]
+            ],
+            'total' => Book::count(),
         ]);
     }
     public function show(Book $book): JsonResponse

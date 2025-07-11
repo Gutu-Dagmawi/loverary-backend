@@ -81,3 +81,7 @@ Route::middleware('auth:sanctum')->get(
     [CirculationController::class, 'getAllReturns']
 );
 
+Route::middleware('auth:sanctum')->get(
+    '/circulation/activeLoans',
+    [CirculationController::class, 'getActiveLoans']
+);
