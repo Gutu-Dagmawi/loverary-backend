@@ -9,7 +9,6 @@ use App\Models\CheckIn;
 use App\Models\CheckOut;
 use App\Models\Member;
 use App\Models\User;
-use Dflydev\DotAccessData\Data;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
@@ -22,10 +21,11 @@ class CirculationController extends Controller
     public function getAllLoans(): JsonResponse
     {
         $member = auth()->user();
-        if (!$member instanceof Admin) {
+        if (!($member->isAdmin())) {
             return response()->json([
                 'status' => false,
                 'message' => 'Only admins can view all checkouts.',
+                'current_user' => $member,
             ], 403);
         }
 
@@ -40,10 +40,11 @@ class CirculationController extends Controller
     public function getAllOverdue(): JsonResponse
     {
         $member = auth()->user();
-        if (!$member instanceof Admin) {
+        if (!$member->isAdmin()) {
             return response()->json([
                 'status' => false,
                 'message' => 'Only admins can view all overdue books.',
+                'current_user' => $member,
             ], 403);
         }
 
@@ -55,12 +56,14 @@ class CirculationController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'No overdue checkouts found.',
-            ], 404);
+                'total' => 0
+            ], 200);
         }
 
         return response()->json([
             'status' => true,
-            'overdue_check_outs' => $overdueCheckOuts
+            'overdue_check_outs' => $overdueCheckOuts,
+            'total' => $overdueCheckOuts->count()
         ]);
     }
 
@@ -68,10 +71,11 @@ class CirculationController extends Controller
     public function getAllReturns(): JsonResponse
     {
         $member = auth()->user();
-        if (!$member instanceof Admin) {
+        if (!$member->isAdmin()) {
             return response()->json([
                 'status' => false,
                 'message' => 'Only admins can view all returns.',
+                'current_user' => $member,
             ], 403);
         }
 
@@ -90,6 +94,33 @@ class CirculationController extends Controller
         ]);
     }
 
+
+    public function getActiveLoans(): JsonResponse
+    {
+        $member = auth()->user();
+        if (!$member->isAdmin()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Only admins can view all active loans.',
+            ], 403);
+        }
+
+        $activeLoans = CheckOut::whereNull('check_in_id')
+            ->get();
+
+        if ($activeLoans->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No active loans found',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'active_loans' => $activeLoans,
+            'total' => $activeLoans->count()
+        ]);
+    }
     public function checkOutBook(Book $book): JsonResponse
     {
         $member = auth()->user();
@@ -99,6 +130,18 @@ class CirculationController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Only members can check out books.',
+            ], 403);
+        }
+
+        // Check if the member has more than 3 active loans and prevent further checkouts
+        $activeLoansCount = CheckOut::where('member_id', $member->id)
+            ->whereNull('check_in_id')
+            ->count();
+            
+        if ($activeLoansCount >= 3) {
+            return response()->json([
+                'status' => false,
+                'message' => 'You cannot check out more than 3 books at a time.',
             ], 403);
         }
 

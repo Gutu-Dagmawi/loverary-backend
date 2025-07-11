@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CirculationController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\BookCopyController;
+use App\Http\Controllers\Api\AuthorController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,6 +17,9 @@ Route::get('/user', function (Request $request) {
 Route::middleware('auth:sanctum')->get('/members', [UserController::class, 'getAllMembers']);
 Route::middleware('auth:sanctum')->get('/members/{id}', [UserController::class, 'getMember']);
 
+Route::middleware('auth:sanctum')->post('/members', [UserController::class, 'createMember']);
+Route::middleware('auth:sanctum')->delete('/members/{member}', [UserController::class, 'deleteMember']);
+
 // Authentication
 Route::post('/login', [AuthController::class, 'loginUser']);
 Route::post('/logout', [AuthController::class, 'logoutUser']);
@@ -25,6 +29,8 @@ Route::post('/register', [AuthController::class, 'createUser']);
 Route::apiResource("books",'\App\Http\Controllers\Api\BookController')->middleware('auth:sanctum');
 
 // Author CRUD
+Route::post('/authors/multiple', [AuthorController::class, 'showMultipleAuthors']);
+
 Route::apiResource("authors", '\App\Http\Controllers\Api\AuthorController')->middleware('auth:sanctum');
 
 // Circulation Routes
@@ -73,4 +79,9 @@ Route::middleware('auth:sanctum')->get(
 Route::middleware('auth:sanctum')->get(
     '/circulation/allReturns',
     [CirculationController::class, 'getAllReturns']
+);
+
+Route::middleware('auth:sanctum')->get(
+    '/circulation/activeLoans',
+    [CirculationController::class, 'getActiveLoans']
 );

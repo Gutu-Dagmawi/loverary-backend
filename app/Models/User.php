@@ -63,7 +63,7 @@ class User extends Authenticatable
      */
     public function isAdmin(): bool
     {
-        return $this->type === "Admin";
+        return $this->type === UserType::Admin;
     }
 
     public function newFromBuilder($attributes = [], $connection = null): User

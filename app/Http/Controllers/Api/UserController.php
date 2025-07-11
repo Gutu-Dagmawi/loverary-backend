@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Auth;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-
+use Throwable;
 class UserController extends Controller
 {
     /**
@@ -19,7 +19,8 @@ class UserController extends Controller
      */
     public function getAllMembers(): JsonResponse
     {
-        if (!Auth::user() || !Auth::user()->isAdmin()) {
+        $member = auth()->user();
+        if (!$member->isAdmin()) {
             return response()->json([
                 'status' => false,
                 'message' => 'Only admins can view all members.',
@@ -27,7 +28,7 @@ class UserController extends Controller
         }
 
         $members = Member::all();
-        if($members->isEmpty()) {
+        if ($members->isEmpty()) {
             return response()->json([
                 'status' => false,
                 'message' => 'No members found.',
@@ -36,7 +37,8 @@ class UserController extends Controller
 
         return response()->json([
             'status' => true,
-            'members' => $members
+            'members' => $members,
+            'total' => $members->count()
         ]);
     }
 
@@ -55,6 +57,32 @@ class UserController extends Controller
             'status' => true,
             'member' => $member
         ]);
+    }
+
+
+    public function deleteMember(Member $member): JsonResponse
+    {
+        if (!Auth::user()->isAdmin()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Only admins can delete members.',
+            ], 403);
+        }
+
+
+        try {
+            $member->delete();
+            return response()->json([
+                'status' => true,
+                'message' => 'Member deleted successfully.',
+                'member' => $member
+            ]);
+        } catch (Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to delete member: ' . $th->getMessage(),
+            ], 500);
+        }
     }
     /**
      * @throws ContainerExceptionInterface
